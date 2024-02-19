@@ -1,80 +1,70 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Global parameters
-Lx = 1.0
-Ly = 2.0
-nx = 21
-ny = 51
-cfl = 1.0
+def solve_unsteady_heat_equation(Lx=1, Ly=2, nx=21, ny=51, cfl=1, t_end=1e6, epsilon=1e-6):
+    # Define grid
+    x = np.linspace(0, Lx, nx)
+    y = np.linspace(0, Ly, ny)
+    dx = x[1] - x[0]
+    dy = y[1] - y[0]
 
-# Define grid and step sizes
-dx = Lx / (nx - 1)
-dy = Ly / (ny - 1)
+    # Initialize solution matrix
+    u = np.zeros((nx, ny))
 
-# Initialize grid and solution
-x = np.linspace(0, Lx, nx)
-y = np.linspace(0, Ly, ny)
-X, Y = np.meshgrid(x, y)
+    # Initialize time variables
+    dt = cfl * min(dx**2, dy**2) / 2  # Time step
+    t = 0
 
-# Initial condition
-u0 = np.zeros((nx, ny))
+    # Define Laplacian function
+    def calc_lap(u):
+        laplacian = np.zeros_like(u)
+        laplacian[1:-1, 1:-1] = (u[2:, 1:-1] - 2*u[1:-1, 1:-1] + u[:-2, 1:-1]) / dx**2
+        laplacian[1:-1, 1:-1] += (u[1:-1, 2:] - 2*u[1:-1, 1:-1] + u[1:-1, :-2]) / dy**2
+        return laplacian
 
-# Function to compute Laplacian (∆u) using vectorized programming
-def calc_lap(u):
-    global dx, dy
-    im = np.roll(u, 1, axis=0)
-    ip = np.roll(u, -1, axis=0)
-    jm = np.roll(u, 1, axis=1)
-    jp = np.roll(u, -1, axis=1)
+    # Define source term function
+    def fsource(x, y):
+        a = 2 * np.pi / Lx
+        b = 2 * np.pi / Ly
+        return (a**2 + b**2) * np.sin(a * x) * np.cos(b * y)
 
-    laplacian = (ip - 2*u + im) / (dx**2) + (jp - 2*u + jm) / (dy**2)
-    return laplacian
-
-# Function to compute the right-hand side function f(x, y)
-def compute_rhs(X, Y):
-    a = 2 * np.pi / Lx
-    b = 2 * np.pi / Ly
-    return (a**2 + b**2) * np.sin(a * X) * np.cos(b * Y)
-
-# Function to solve the unsteady heat equation using the explicit scheme
-def solve_heat_equation(u0, cfl, max_iterations=10000, convergence_threshold=1e-6):
-    u = u0.copy()
-    dt = cfl * min(dx**2, dy**2) / 2  # Time step based on CFL condition
-
-    iteration = 0
-    while iteration < max_iterations:
-        rhs = compute_rhs(X, Y)
+    # Main time-stepping loop
+    while t < t_end:
+        # Update solution using explicit scheme
         laplacian = calc_lap(u)
-        u_new = u + dt * (rhs + laplacian)
+        u[1:-1, 1:-1] += dt * (fsource(x[1:-1], y[1:-1]) + laplacian[1:-1, 1:-1])
 
         # Check convergence
-        epsilon = np.linalg.norm(u_new - u) / np.sqrt(nx * ny)
-        if epsilon < convergence_threshold:
+        epsilon_t = np.linalg.norm(u - laplacian)
+        if epsilon_t < epsilon:
             break
 
-        u = u_new
-        iteration += 1
+        # Update time
+        t += dt
 
-    return u
+    # Return numerical and exact solutions
+    X, Y = np.meshgrid(x, y)
+    numerical_solution = u.T
+    exact_solution = np.sin(2 * np.pi / Lx * X) * np.cos(2 * np.pi / Ly * Y)
+    
+    return numerical_solution, exact_solution
 
-# Plot the numerical and exact solutions
-def plot_solutions(u, exact_solution):
-    plt.contourf(X, Y, u.T, levels=20, cmap='viridis', extend='both')
-    plt.colorbar(label='Numerical Solution')
-    plt.contour(X, Y, exact_solution.T, levels=20, colors='w', linestyles='dashed')
-    plt.title('Numerical vs Exact Solution')
+if __name__ == "__main__":
+    numerical_solution, exact_solution = solve_unsteady_heat_equation()
+    
+    # Plot numerical and exact solutions
+    X, Y = np.meshgrid(np.linspace(0, 1, 21), np.linspace(0, 2, 51))
+    plt.contourf(X, Y, numerical_solution, levels=50, cmap='viridis')
+    plt.title('Numerical Solution')
     plt.xlabel('x')
     plt.ylabel('y')
+    plt.colorbar()
     plt.show()
 
-# Main program
-if __name__ == "__main__":
-    # Solve the unsteady heat equation
-    numerical_solution = solve_heat_equation(u0, cfl)
-
-    # Exact solution for comparison
-    exact_solution = np.sin(2 * np.pi / Lx * X) * np.cos(2 * np.pi / Ly * Y)
-
-    # Plot the solutions
-    plot_solutions(numerical_solution, exact_solution)
+    # Plot exact solution
+    plt.contourf(X, Y, exact_solution, levels=50, cmap='viridis')
+    plt.title('Exact Solution')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.colorbar()
+    plt.show()
