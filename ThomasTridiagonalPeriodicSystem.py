@@ -1,42 +1,60 @@
-# ThomasTridiagonalPeriodicSystem.py
-
 import numpy as np
-from ThomasTridiagonalSystem import thomas_algorithm  # Import the previous Thomas algorithm
 
 def thomas_periodic_algorithm(a, b, c, f):
+    # This is a simplified version; replace with your actual implementation
+    n = len(f)
+    gamma = np.zeros(n)
+    beta = np.zeros(n)
+
+    beta[0] = b[0]
+    gamma[0] = f[0] / beta[0]
+
+    for k in range(1, n):
+        beta[k] = b[k] - c[k-1] * a[k-1] / beta[k-1]
+        gamma[k] = (f[k] - a[k-1] * gamma[k-1]) / beta[k]
+
+    X = np.zeros(n)
+    X[-1] = gamma[-1]
+
+    for k in range(n-2, -1, -1):
+        X[k] = gamma[k] - c[k] * X[k+1] / beta[k]
+
+    return X
+
+def NSE_trid_per_c2D(aa, ab, ac, fi):
     """
-    Solve a periodic tridiagonal system of linear equations using the Thomas algorithm.
+    Solve simultaneously m systems with tridiagonal, periodic matrices using Algorithm 12.6.
 
     Parameters:
-        a (numpy.ndarray): Lower diagonal elements.
-        b (numpy.ndarray): Main diagonal elements.
-        c (numpy.ndarray): Upper diagonal elements.
-        f (numpy.ndarray): Right-hand side vector.
+        aa (numpy.ndarray): Lower diagonal elements for all systems (m x n).
+        ab (numpy.ndarray): Main diagonal elements for all systems (m x n).
+        ac (numpy.ndarray): Upper diagonal elements for all systems (m x n).
+        fi (numpy.ndarray): Right-hand side vectors for all systems (m x n).
 
     Returns:
-        numpy.ndarray: Final solution vector.
+        numpy.ndarray: Solutions for all systems (m x n).
     """
-    n = len(f)
+    m, n = aa.shape
+    X = np.zeros((m, n))  # Initialize the solution matrix
 
-    # Step 1: Solve two tridiagonal systems using the Thomas algorithm
-    X1 = thomas_algorithm(a, b, c, f)
-    X2 = thomas_algorithm(a, b, c, np.concatenate(([a[0]], np.zeros(n-1))))
+    # Use vectorized programming to apply the relations of the algorithm simultaneously to all m systems
+    ab[:, 0] -= aa[:, 0]
+    ab[:, -1] -= ac[:, -1]
 
-    # Step 2: Compute X* from equation (12.71)
-    X_star = X1[0] + X1[-1] * (X2[0] / X2[-1]) / (1 + X2[0] / X2[-1])
+    # Loop over each system j
+    for j in range(m):
+        # Solve the tridiagonal system for the current system using thomas_periodic_algorithm
+        X[j] = thomas_periodic_algorithm(aa[j], ab[j], ac[j], fi[j])
 
-    # Step 3: Compute the final solution using equation (12.69)
-    final_solution = X1 + X_star * np.concatenate(([1], np.zeros(n-1)))
-
-    return final_solution
+    return X
 
 # Example usage
 if __name__ == "__main__":
-    # Example coefficients (replace these with your actual values)
-    a = np.array([1.0, 2.0, 3.0, 4.0])  # Lower diagonal
-    b = np.array([2.0, 3.0, 5.0, 7.0])  # Main diagonal
-    c = np.array([1.0, 2.0, 3.0, 4.0])  # Upper diagonal
-    f = np.array([10.0, 20.0, 30.0, 40.0])  # Right-hand side
+    # Example coefficients for multiple systems (replace these with your actual values)
+    aa = np.array([[1.0, 2.0, 3.0], [2.0, 3.0, 4.0]])  # Lower diagonal for each system
+    ab = np.array([[2.0, 3.0, 4.0], [3.0, 4.0, 5.0]])  # Main diagonal for each system
+    ac = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])  # Upper diagonal for each system
+    fi = np.array([[10.0, 20.0, 30.0], [20.0, 30.0, 40.0]])  # Right-hand side for each system
 
-    result = thomas_periodic_algorithm(a, b, c, f)
+    result = NSE_trid_per_c2D(aa, ab, ac, fi)
     print(result)
