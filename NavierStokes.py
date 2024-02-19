@@ -45,10 +45,7 @@ def navier_stokes_solver():
 
         p[1:-1, 1:-1] = 0  # Placeholder for pressure computation
 
-    # Visualize the flow field
-    visualize_flow(u, v)
-
-# Run the Navier–Stokes solver
-navier_stokes_solver()
+    # Return u and v
+    return u, v
 
 #This is a simplified solver for a basic representation

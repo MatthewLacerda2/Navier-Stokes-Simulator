@@ -1,18 +1,21 @@
 import numpy as np
 
 def thomas_periodic_algorithm(a, b, c, f):
-    # This is a simplified version; replace with your actual implementation
+    # Function to solve a tridiagonal periodic system using Thomas algorithm
     n = len(f)
     gamma = np.zeros(n)
     beta = np.zeros(n)
 
+    # Initialization
     beta[0] = b[0]
     gamma[0] = f[0] / beta[0]
 
+    # Forward sweep
     for k in range(1, n):
         beta[k] = b[k] - c[k-1] * a[k-1] / beta[k-1]
         gamma[k] = (f[k] - a[k-1] * gamma[k-1]) / beta[k]
 
+    # Backward sweep
     X = np.zeros(n)
     X[-1] = gamma[-1]
 
@@ -34,6 +37,7 @@ def NSE_trid_per_c2D(aa, ab, ac, fi):
     Returns:
         numpy.ndarray: Solutions for all systems (m x n).
     """
+    # Function to solve a 2D tridiagonal periodic system using Thomas algorithm
     m, n = aa.shape
     X = np.zeros((m, n))  # Initialize the solution matrix
 

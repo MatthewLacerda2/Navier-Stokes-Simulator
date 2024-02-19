@@ -27,9 +27,11 @@ def heat_solver():
         u[1:-1, 1:-1] = 0.25 * (u[2:, 1:-1] + u[:-2, 1:-1] + u[1:-1, 2:] + u[1:-1, :-2])
 
     # Visualize the temperature field
-    visualize_temperature(u)
+    #visualize_temperature(u)
+    return u
 
 # Run the heat solver
 heat_solver()
+
 
 #This is a simplified solver for a basic representation

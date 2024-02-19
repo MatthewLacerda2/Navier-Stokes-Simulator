@@ -1,5 +1,3 @@
-# main.py
-
 from NavierStokes import navier_stokes_solver, visualize_flow
 from SteadyHeatEquationFFT import heat_solver, visualize_temperature
 
