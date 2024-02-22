@@ -3,7 +3,7 @@ from SteadyHeatEquationFFT import heat_solver, visualize_temperature
 
 def main():
     # Run Navier–Stokes solver
-    u, v = navier_stokes_solver()
+    u, v, p = navier_stokes_solver()
 
     # Visualize the flow field
     visualize_flow(u, v, title="Navier–Stokes Flow Field")
@@ -13,6 +13,7 @@ def main():
 
     # Visualize the temperature field
     visualize_temperature(temperature, title="Heat Map")
+
 
 if __name__ == "__main__":
     main()

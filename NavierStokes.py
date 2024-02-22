@@ -16,6 +16,17 @@ u = np.zeros((nx, ny))  # x-component of velocity
 v = np.zeros((nx, ny))  # y-component of velocity
 p = np.zeros((nx, ny))  # Pressure
 
+# Initialize flow variables with a vortex
+x, y = np.meshgrid(np.linspace(0, Lx, nx), np.linspace(0, Ly, ny))
+x_center, y_center = Lx / 2, Ly / 2
+radius = min(Lx, Ly) / 4
+
+u = -2 * np.pi * (y - y_center) * np.exp(-(x - x_center)**2 - (y - y_center)**2) / radius**2
+v = 2 * np.pi * (x - x_center) * np.exp(-(x - x_center)**2 - (y - y_center)**2) / radius**2
+
+initial_pressure = 10.0
+p = np.full((nx, ny), initial_pressure)
+
 # Time parameters
 dt = 0.001  # Time step
 num_time_steps = 100
@@ -43,9 +54,12 @@ def navier_stokes_solver():
         v[1:-1, 1:-1] += dt * (nu * (v[2:, 1:-1] - 2 * v[1:-1, 1:-1] + v[:-2, 1:-1]) / dx**2
                              + nu * (v[1:-1, 2:] - 2 * v[1:-1, 1:-1] + v[1:-1, :-2]) / dy**2)
 
-        p[1:-1, 1:-1] = 0  # Placeholder for pressure computation
+        # Pressure correction step
+        p[1:-1, 1:-1] = 0.5 * (p[2:, 1:-1] + p[:-2, 1:-1] + p[1:-1, 2:] + p[1:-1, :-2]) - \
+                       dt / (2 * dx) * (u[2:, 1:-1] - u[:-2, 1:-1]) - \
+                       dt / (2 * dy) * (v[1:-1, 2:] - v[1:-1, :-2])
 
-    # Return u and v
-    return u, v
+    # Return u, v, and p
+    return u, v, p
 
 #This is a simplified solver for a basic representation
