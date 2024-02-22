@@ -11,7 +11,6 @@ dy = Ly / (ny - 1)  # Grid spacing in y
 kappa = 0.01  # Thermal conductivity coefficient
 
 # Initialize temperature field
-u = np.zeros((nx, ny))
 
 # Function to visualize the temperature field
 def visualize_temperature(u, title="Temperature Field"):
@@ -21,17 +20,9 @@ def visualize_temperature(u, title="Temperature Field"):
     plt.show()
 
 # Main heat equation solver function
-def heat_solver():
+def heat_solver(arr):
     # Solve the steady heat equation
     for _ in range(1000):  # Adjust the number of iterations as needed
-        u[1:-1, 1:-1] = 0.25 * (u[2:, 1:-1] + u[:-2, 1:-1] + u[1:-1, 2:] + u[1:-1, :-2])
+        arr[1:-1, 1:-1] = 0.25 * (arr[2:, 1:-1] + arr[:-2, 1:-1] + arr[1:-1, 2:] + arr[1:-1, :-2])
 
-    # Visualize the temperature field
-    #visualize_temperature(u)
-    return u
-
-# Run the heat solver
-heat_solver()
-
-
-#This is a simplified solver for a basic representation
+    return arr
