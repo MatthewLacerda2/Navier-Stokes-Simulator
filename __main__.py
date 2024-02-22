@@ -14,6 +14,5 @@ def main():
     # Visualize the temperature field
     visualize_temperature(temperature, title="Heat Map")
 
-
 if __name__ == "__main__":
     main()

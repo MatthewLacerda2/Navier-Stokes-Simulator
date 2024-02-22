@@ -9,7 +9,7 @@ nx = 50   # Number of grid points in x
 ny = 50   # Number of grid points in y
 dx = Lx / (nx - 1)  # Grid spacing in x
 dy = Ly / (ny - 1)  # Grid spacing in y
-nu = 0.1  # Viscosity coefficient
+nu = 0.001  # Viscosity coefficient
 
 # Initialize flow variables
 u = np.zeros((nx, ny))  # x-component of velocity
@@ -24,12 +24,12 @@ radius = min(Lx, Ly) / 4
 u = -2 * np.pi * (y - y_center) * np.exp(-(x - x_center)**2 - (y - y_center)**2) / radius**2
 v = 2 * np.pi * (x - x_center) * np.exp(-(x - x_center)**2 - (y - y_center)**2) / radius**2
 
-initial_pressure = 10.0
+initial_pressure = 1000
 p = np.full((nx, ny), initial_pressure)
 
 # Time parameters
 dt = 0.001  # Time step
-num_time_steps = 100
+num_time_steps = 1000
 
 # Function to visualize the flow field
 def visualize_flow(u, v, title="Flow Field"):
@@ -61,5 +61,3 @@ def navier_stokes_solver():
 
     # Return u, v, and p
     return u, v, p
-
-#This is a simplified solver for a basic representation

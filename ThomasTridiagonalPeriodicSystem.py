@@ -37,7 +37,6 @@ def NSE_trid_per_c2D(aa, ab, ac, fi):
     Returns:
         numpy.ndarray: Solutions for all systems (m x n).
     """
-    # Function to solve a 2D tridiagonal periodic system using Thomas algorithm
     m, n = aa.shape
     X = np.zeros((m, n))  # Initialize the solution matrix
 
