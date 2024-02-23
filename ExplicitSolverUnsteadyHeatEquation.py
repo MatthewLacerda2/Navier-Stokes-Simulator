@@ -32,7 +32,14 @@ def solve_unsteady_heat_equation(Lx=1, Ly=2, nx=21, ny=51, cfl=1, t_end=1e6, eps
     while t < t_end:
         # Update solution using explicit scheme
         laplacian = calc_lap(u)
-        u[1:-1, 1:-1] += dt * (fsource(x[1:-1], y[1:-1]) + laplacian[1:-1, 1:-1])
+        source_term = fsource(x[1:-1, None], y[None, 1:-1])  # calculate source term only once
+
+        u[1:-1, 1:-1] += dt * (source_term + laplacian[1:-1, 1:-1])
+
+        # Check for invalid values
+        if np.any(np.isnan(u)) or np.any(np.isinf(u)):
+            print("Invalid values encountered. Aborting.")
+            break
 
         # Check convergence
         epsilon_t = np.linalg.norm(u - laplacian)
@@ -45,8 +52,8 @@ def solve_unsteady_heat_equation(Lx=1, Ly=2, nx=21, ny=51, cfl=1, t_end=1e6, eps
     # Return numerical and exact solutions
     X, Y = np.meshgrid(x, y)
     numerical_solution = u.T
-    exact_solution = np.sin(2 * np.pi / Lx * X) * np.cos(2 * np.pi / Ly * Y)
-    
+    exact_solution = np.sin(2 * np.pi / Lx * X) * np.cos(2 * np.pi / Ly * Y) * np.exp(-t)
+
     return numerical_solution, exact_solution
 
 if __name__ == "__main__":

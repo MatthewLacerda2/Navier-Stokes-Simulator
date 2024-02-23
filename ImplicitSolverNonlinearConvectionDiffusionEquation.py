@@ -29,17 +29,26 @@ def solve_nonlinear_convection_diffusion(Lx=1, Ly=2, nx=21, ny=51, cfl=100, t_en
         return (a**2 + b**2) * np.sin(a * x) * np.cos(b * y) + u**2
 
     # ADI initialization
-    ami = -dt / (2 * dx**2)
-    api = -dt / (2 * dx**2)
-    alph = 1 + dt / dx**2
-    xs2 = np.zeros(nx)
+    ami_x = -dt / (2 * dx**2)
+    api_x = -dt / (2 * dx**2)
+    alph_x = 1 + dt / dx**2
+
+    ami_y = -dt / (2 * dy**2)
+    api_y = -dt / (2 * dy**2)
+    alph_y = 1 + dt / dy**2
 
     while t < t_end:
-        # ADI step
+        # ADI step in x-direction
         for j in range(1, ny-1):
-            fi = u[:, j] + dt * fsource_nonlinear(x, y[j], u[:, j]) + ami * (u[:-2, j] - 2*u[1:-1, j] + u[2:, j])
-            u[:, j] = np.linalg.solve(np.diag(api * np.ones(nx-1), -1) + np.diag(alph * np.ones(nx), 0) +
-                                       np.diag(ami * np.ones(nx-1), 1), fi)
+            fi = u[:, j] + dt * fsource_nonlinear(x, y[j], u[:, j]) + ami_x * (u[:-2, j] - 2*u[1:-1, j] + u[2:, j])
+            u[:, j] = np.linalg.solve(np.diag(api_x * np.ones(nx-1), -1) + np.diag(alph_x * np.ones(nx), 0) +
+                                       np.diag(ami_x * np.ones(nx-1), 1), fi)
+
+        # ADI step in y-direction
+        for i in range(1, nx-1):
+            fi = u[i, :] + dt * fsource_nonlinear(x[i], y, u[i, :]) + ami_y * (u[i, :-2] - 2*u[i, 1:-1] + u[i, 2:])
+            u[i, :] = np.linalg.solve(np.diag(api_y * np.ones(ny-1), -1) + np.diag(alph_y * np.ones(ny), 0) +
+                                       np.diag(ami_y * np.ones(ny-1), 1), fi)
 
         # Check convergence
         epsilon_t = np.linalg.norm(u - calc_lap(u))
@@ -51,9 +60,9 @@ def solve_nonlinear_convection_diffusion(Lx=1, Ly=2, nx=21, ny=51, cfl=100, t_en
 
     # Return numerical solution
     X, Y = np.meshgrid(x, y)
-    numerical_solution = u.T
+    numerical_solution_nonlinear = u.T
 
-    return numerical_solution
+    return numerical_solution_nonlinear
 
 if __name__ == "__main__":
     numerical_solution_nonlinear = solve_nonlinear_convection_diffusion()
