@@ -9,7 +9,7 @@ nx = 250  # Number of grid points in x
 ny = 250  # Number of grid points in y
 dx = Lx / (nx - 1)  # Grid spacing in x
 dy = Ly / (ny - 1)  # Grid spacing in y
-nu = 0.25  # Viscosity coefficient
+nu = 0.2  # Viscosity coefficient
 
 # Initialize flow variables
 u = np.zeros((nx, ny))  # x-component of velocity
@@ -36,10 +36,15 @@ def initialize_flow():
     # Flow going from top to bottom with increasing randomness
     v[:nx//2, :] = 1.0 + randomness_factor
 
-    initial_pressure = 1000
-    p = np.full((nx, ny), initial_pressure)
+    # Introduce interesting patterns in the temperature field
+    a = 2 * np.pi / Lx
+    b = 2 * np.pi / Ly
+    temperature = np.sin(a * x) * np.cos(b * y) + 0.5 * np.sin(2 * a * x) * np.sin(2 * b * y)
 
-    return u, v, p
+    initial_temperature = 100.0
+    temperature *= initial_temperature
+
+    return u, v, temperature
 
 # Function to visualize the flow field
 def visualize_flow(u, v, title="Flow Field"):
@@ -73,5 +78,4 @@ def navier_stokes_solver():
                        dt / (2 * dx) * (u[2:, 1:-1] - u[:-2, 1:-1]) - \
                        dt / (2 * dy) * (v[1:-1, 2:] - v[1:-1, :-2])
 
-    # Return u, v, and p
     return u, v, p

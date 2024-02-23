@@ -9,7 +9,7 @@ def main():
     visualize_flow(u, v, title="Navier–Stokes Flow Field")
 
     # Run heat solver
-    temperature = heat_solver(u)
+    temperature = heat_solver(u, v)
 
     # Visualize the temperature field
     visualize_temperature(temperature, title="Heat Map")
