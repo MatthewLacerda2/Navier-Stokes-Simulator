@@ -50,7 +50,6 @@ def initialize_flow():
 
     return u, v, temperature
 
-
 # Function to visualize the flow field
 def visualize_flow(u, v, title="Flow Field"):
     fig, ax = plt.subplots()
@@ -84,7 +83,6 @@ def visualize_vectors(u, v, title="Flow Field"):
 
     ani = FuncAnimation(fig, update_quiver, frames=num_time_steps, fargs=(quiver, u, v), interval=5000, blit=False)
     plt.show()
-
 
 # Main Navier–Stokes solver function
 def navier_stokes_solver():
