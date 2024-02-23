@@ -25,18 +25,6 @@ def thomas_periodic_algorithm(a, b, c, f):
     return X
 
 def NSE_trid_per_c2D(aa, ab, ac, fi):
-    """
-    Solve simultaneously m systems with tridiagonal, periodic matrices using Algorithm 12.6.
-
-    Parameters:
-        aa (numpy.ndarray): Lower diagonal elements for all systems (m x n).
-        ab (numpy.ndarray): Main diagonal elements for all systems (m x n).
-        ac (numpy.ndarray): Upper diagonal elements for all systems (m x n).
-        fi (numpy.ndarray): Right-hand side vectors for all systems (m x n).
-
-    Returns:
-        numpy.ndarray: Solutions for all systems (m x n).
-    """
     m, n = aa.shape
     X = np.zeros((m, n))  # Initialize the solution matrix
 

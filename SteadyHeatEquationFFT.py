@@ -38,12 +38,12 @@ def heat_solver(u, v):
 
     f = initialize_temperature(nx, ny, Lx, Ly, u, v)
 
-    # Constants for the right-hand side function (modify based on Exercise 12.2)
+    # Constants for the right-hand side function
     a = 2 * np.pi / Lx
     b = 2 * np.pi / Ly
 
     # Optimize the tridiagonal system solver
-    aa, ab, ac, fi = np.random.rand(ny, nx), np.random.rand(ny, nx), np.random.rand(ny, nx), np.random.rand(ny, nx)
+    aa, ab, ac, fi = np.random.rand(ny, nx), np.random.rand(ny, nx),np.random.rand(ny, nx), np.random.rand(ny, nx)
     nse_trid(aa, ab, ac, fi)
     
     dx = Lx / (nx - 1)
