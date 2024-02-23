@@ -3,49 +3,63 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 # Define global variables
-Lx = 1.0  # Domain size in x
-Ly = 1.0  # Domain size in y
-nx = 50   # Number of grid points in x
-ny = 50   # Number of grid points in y
+Lx = 10  # Domain size in x
+Ly = 10  # Domain size in y
+nx = 250  # Number of grid points in x
+ny = 250  # Number of grid points in y
 dx = Lx / (nx - 1)  # Grid spacing in x
 dy = Ly / (ny - 1)  # Grid spacing in y
-nu = 0.001  # Viscosity coefficient
+nu = 0.25  # Viscosity coefficient
 
 # Initialize flow variables
 u = np.zeros((nx, ny))  # x-component of velocity
 v = np.zeros((nx, ny))  # y-component of velocity
 p = np.zeros((nx, ny))  # Pressure
 
-# Initialize flow variables with a vortex
-x, y = np.meshgrid(np.linspace(0, Lx, nx), np.linspace(0, Ly, ny))
-x_center, y_center = Lx / 2, Ly / 2
-radius = min(Lx, Ly) / 4
-
-u = -2 * np.pi * (y - y_center) * np.exp(-(x - x_center)**2 - (y - y_center)**2) / radius**2
-v = 2 * np.pi * (x - x_center) * np.exp(-(x - x_center)**2 - (y - y_center)**2) / radius**2
-
-initial_pressure = 1000
-p = np.full((nx, ny), initial_pressure)
-
 # Time parameters
 dt = 0.001  # Time step
 num_time_steps = 1000
 
+def initialize_flow():
+    # Initialize flow variables with two flows colliding
+    x, y = np.meshgrid(np.linspace(0, Lx, nx), np.linspace(0, Ly, ny))
+
+    u = np.zeros((nx, ny))
+    v = np.zeros((nx, ny))
+
+    # Control the amplitude of randomness based on the time_step
+    randomness_factor = 0.1 + 0.1 * np.exp(-num_time_steps / 500)
+
+    # Flow going from left to right with increasing randomness
+    u[:, :ny//2] = 1.0 + randomness_factor
+
+    # Flow going from top to bottom with increasing randomness
+    v[:nx//2, :] = 1.0 + randomness_factor
+
+    initial_pressure = 1000
+    p = np.full((nx, ny), initial_pressure)
+
+    return u, v, p
+
 # Function to visualize the flow field
 def visualize_flow(u, v, title="Flow Field"):
     fig, ax = plt.subplots()
-    quiver = ax.quiver(u, v, scale=20)
-    ax.set_title(title)
-    
-    def update_quiver(num, quiver, u, v):
-        quiver.set_UVC(u, v)
-        return quiver,
 
-    ani = FuncAnimation(fig, update_quiver, frames=num_time_steps, fargs=(quiver, u, v), interval=50, blit=False)
+    # Calculate the magnitude of the velocity field
+    speed = np.sqrt(u**2 + v**2)
+
+    # Use a color map to represent the magnitude
+    im = ax.imshow(speed, cmap='viridis', extent=[0, Lx, 0, Ly], origin='lower', aspect='auto')
+    plt.colorbar(im, label='Speed')
+
+    ax.set_title(title)
     plt.show()
 
 # Main Navier–Stokes solver function
 def navier_stokes_solver():
+
+    u, v, p = initialize_flow()
+
     for t in range(num_time_steps):
         # Solve Navier–Stokes equations (simplified)
         u[1:-1, 1:-1] += dt * (nu * (u[2:, 1:-1] - 2 * u[1:-1, 1:-1] + u[:-2, 1:-1]) / dx**2

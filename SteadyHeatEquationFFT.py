@@ -4,8 +4,8 @@ from ThomasTridiagonalPeriodicSystem import NSE_trid_per_c2D as nse_trid
 
 Lx = 1
 Ly = 1
-nx = 50
-ny = 50
+nx = 250
+ny = 250
 
 def visualize_steady_heat(x,y,u):
     plt.contourf(x, y, u, cmap='viridis')
@@ -47,6 +47,6 @@ def heat_solver(f):
     # Solve the tridiagonal system (Exercise 12.3 optimization)
     u = nse_trid(aa, ab, ac, f)
 
-    visualize_steady_heat(x,y,u)
+    #visualize_steady_heat(x,y,u)
 
     return u
