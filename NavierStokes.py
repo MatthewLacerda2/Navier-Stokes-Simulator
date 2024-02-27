@@ -9,43 +9,34 @@ nx = 250  # Number of grid points in x
 ny = 250  # Number of grid points in y
 dx = Lx / (nx - 1)  # Grid spacing in x
 dy = Ly / (ny - 1)  # Grid spacing in y
-nu = 0.2  # Viscosity coefficient
 
 # Initialize flow variables
 u = np.zeros((nx, ny))  # x-component of velocity
 v = np.zeros((nx, ny))  # y-component of velocity
 p = np.zeros((nx, ny))  # Pressure
 
-# Time parameters
+nu = 0.2  # Viscosity coefficient
 dt = 0.001  # Time step
 num_time_steps = 10000
 
-# Function to visualize the flow field
 def visualize_flow(u, v, title="Flow Field"):
-    fig, ax = plt.subplots()
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
 
     # Calculate the magnitude of the velocity field
     speed = np.sqrt(u**2 + v**2)
 
     # Use a color map to represent the magnitude
-    im = ax.imshow(speed, cmap='viridis', extent=[0, Lx, 0, Ly], origin='lower', aspect='auto')
-    plt.colorbar(im, label='Speed')
-
-    ax.set_title(title)
-    plt.show()
-
-    visualize_vectors(u, v, title="Navier–Stokes Flow Field - Initial Condition")
-
-def visualize_vectors(u, v, title="Flow Field"):
-    fig, ax = plt.subplots(figsize=(10, 10))
+    im = ax1.imshow(speed, cmap='viridis', extent=[0, Lx, 0, Ly], origin='lower', aspect='auto')
+    plt.colorbar(im, ax=ax1, label='Speed')
+    ax1.set_title(title)
 
     # Subsample the u and v arrays to reduce arrow density
     subsample_factor = 10
     u_subsampled = u[::subsample_factor, ::subsample_factor]
     v_subsampled = v[::subsample_factor, ::subsample_factor]
 
-    quiver = ax.quiver(u_subsampled, v_subsampled, scale=30, width=0.005, color='red', alpha=0.7, headaxislength=3)
-    ax.set_title(title)
+    quiver = ax2.quiver(u_subsampled, v_subsampled, scale=30, width=0.005, color='red', alpha=0.7, headaxislength=3)
+    ax2.set_title("Vector Field")
 
     def update_quiver(num, quiver, u, v):
         quiver.set_UVC(u[::subsample_factor, ::subsample_factor], v[::subsample_factor, ::subsample_factor])
