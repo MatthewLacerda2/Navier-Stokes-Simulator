@@ -18,37 +18,7 @@ p = np.zeros((nx, ny))  # Pressure
 
 # Time parameters
 dt = 0.001  # Time step
-num_time_steps = 100
-
-def initialize_flow():
-    # Initialize flow variables with a clockwise-rotating vortex and an incoming flow
-    x, y = np.meshgrid(np.linspace(0, Lx, nx), np.linspace(0, Ly, ny))
-
-    u = np.zeros((nx, ny))
-    v = np.zeros((nx, ny))
-    
-    # Create a clockwise-rotating vortex
-    vortex_radius = 0.15 * min(Lx, Ly)  # Adjust the vortex radius
-    vortex_center = np.array([Lx / 2, Ly / 2])
-    u_vortex = 2 * np.pi * (y - vortex_center[1]) * np.exp(-((x - vortex_center[0])**2 + (y - vortex_center[1])**2) / vortex_radius**2)
-    v_vortex = -2 * np.pi * (x - vortex_center[0]) * np.exp(-((x - vortex_center[0])**2 + (y - vortex_center[1])**2) / vortex_radius**2)
-
-    # Flow coming from the left, reduced size and increased strength
-    u[:, :2*ny//3] = 2.5
-
-    # Combine the vortex and incoming flow
-    u += u_vortex
-    v += v_vortex
-
-    # Introduce interesting patterns in the temperature field
-    a = 2 * np.pi / Lx
-    b = 2 * np.pi / Ly
-    temperature = np.sin(a * x) * np.cos(b * y) + 0.5 * np.sin(2 * a * x) * np.sin(2 * b * y)
-
-    initial_temperature = 100.0
-    temperature *= initial_temperature
-
-    return u, v, temperature
+num_time_steps = 10000
 
 # Function to visualize the flow field
 def visualize_flow(u, v, title="Flow Field"):
@@ -85,9 +55,7 @@ def visualize_vectors(u, v, title="Flow Field"):
     plt.show()
 
 # Main Navier–Stokes solver function
-def navier_stokes_solver():
-
-    u, v, p = initialize_flow()
+def navier_stokes_solver(u, v, p):
 
     visualize_flow(u, v, title="Navier–Stokes Flow Field - Initial Condition")
 
