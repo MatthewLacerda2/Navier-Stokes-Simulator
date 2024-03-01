@@ -10,10 +10,18 @@ ny = 250  # Number of grid points in y
 dx = Lx / (nx - 1)  # Grid spacing in x
 dy = Ly / (ny - 1)  # Grid spacing in y
 
+# Modify the external force initialization
+external_force_magnitude = 0.2  # Adjust the force magnitude as needed
+force_width_fraction = 1/10.0  # Fraction of the screen width for the force region
+
+# Calculate the width and center of the force region
+force_width = int(nx * force_width_fraction)
+force_center_x = int(nx / 2)
+
 # Initialize flow variables
-u = np.zeros((nx, ny))  # x-component of velocity
-v = np.zeros((nx, ny))  # y-component of velocity
-p = np.zeros((nx, ny))  # Pressure
+u = np.zeros((nx, ny))
+v = np.zeros((nx, ny))
+p = np.zeros((nx, ny))
 
 nu = 0.2  # Viscosity coefficient
 dt = 0.001  # Time step
@@ -45,16 +53,28 @@ def visualize_flow(u, v, title="Flow Field"):
     ani = FuncAnimation(fig, update_quiver, frames=num_time_steps, fargs=(quiver, u, v), interval=5000, blit=False)
     plt.show()
 
+def visualize_external_forces(external_force, title="External Forces"):
+    plt.figure(figsize=(8, 8))
+    plt.quiver(external_force[:, :, 0], external_force[:, :, 1], scale=20, scale_units='xy', color='red')
+    plt.title(title)
+    plt.xlabel('X-axis')
+    plt.ylabel('Y-axis')
+    plt.show()
+
 # Main Navier–Stokes solver function
 def navier_stokes_solver(u, v, p):
 
+    # Initialize external force
+    external_force = np.zeros((nx, ny, 2))
+    external_force[force_center_x:force_center_x + force_width, :, 0] = external_force_magnitude
+
     visualize_flow(u, v, title="Navier–Stokes Flow Field - Initial Condition")
+    visualize_external_forces(external_force, title="External Forces Visualization")
 
     for t in range(num_time_steps):
-        # Solve Navier–Stokes equations (simplified)
+        # Solve Navier–Stokes equations with external force (simplified)
         u[1:-1, 1:-1] += dt * (nu * (u[2:, 1:-1] - 2 * u[1:-1, 1:-1] + u[:-2, 1:-1]) / dx**2
                              + nu * (u[1:-1, 2:] - 2 * u[1:-1, 1:-1] + u[1:-1, :-2]) / dy**2)
-
         v[1:-1, 1:-1] += dt * (nu * (v[2:, 1:-1] - 2 * v[1:-1, 1:-1] + v[:-2, 1:-1]) / dx**2
                              + nu * (v[1:-1, 2:] - 2 * v[1:-1, 1:-1] + v[1:-1, :-2]) / dy**2)
 
@@ -62,6 +82,10 @@ def navier_stokes_solver(u, v, p):
         p[1:-1, 1:-1] = 0.5 * (p[2:, 1:-1] + p[:-2, 1:-1] + p[1:-1, 2:] + p[1:-1, :-2]) - \
                        dt / (2 * dx) * (u[2:, 1:-1] - u[:-2, 1:-1]) - \
                        dt / (2 * dy) * (v[1:-1, 2:] - v[1:-1, :-2])
+        
+        # Apply external force
+        u[force_center_x:force_center_x + force_width, :] += dt * external_force[force_center_x:force_center_x + force_width, :, 0]
+        v[force_center_x:force_center_x + force_width, :] += dt * external_force[force_center_x:force_center_x + force_width, :, 1]
 
     visualize_flow(u, v, title="Navier–Stokes Flow Field - Result")
 
