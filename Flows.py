@@ -53,7 +53,6 @@ def initialize_flow_2():
     # Flow going from bottom to top (1.5 times the speed of left-to-right flow)
     v[:nx//2, :] = 1.5
 
-    # Introduce interesting patterns in the temperature field
     a = 2 * np.pi / Lx
     b = 2 * np.pi / Ly
     temperature = np.sin(a * x) * np.cos(b * y) + 0.5 * np.sin(2 * a * x) * np.sin(2 * b * y)
@@ -90,6 +89,7 @@ def initialize_flow_3():
     u += u_vortex1 + u_vortex2
     v += v_vortex1 + v_vortex2
     vortex_radius = 0.2 * min(Lx, Ly)
+
     temperature = 50.0 * np.exp(-((x - Lx/2)**2 + (y - Ly/2)**2) / (2 * (vortex_radius/2)**2))
 
     return u, v, temperature
@@ -119,7 +119,6 @@ def initialize_flow_4():
     u += u_vortex1 + u_vortex2
     v += v_vortex1 + v_vortex2
 
-    # Introduce interesting patterns in the temperature field
     a = 2 * np.pi / Lx
     b = 2 * np.pi / Ly
     temperature = np.sin(a * x) * np.cos(b * y) + 0.5 * np.sin(2 * a * x) * np.sin(2 * b * y)

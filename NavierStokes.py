@@ -18,11 +18,6 @@ force_width_fraction = 1/10.0  # Fraction of the screen width for the force regi
 force_width = int(nx * force_width_fraction)
 force_center_x = int(nx / 2)
 
-# Initialize flow variables
-u = np.zeros((nx, ny))
-v = np.zeros((nx, ny))
-p = np.zeros((nx, ny))
-
 nu = 0.2  # Viscosity coefficient
 dt = 0.001  # Time step
 num_time_steps = 10000
@@ -54,8 +49,14 @@ def visualize_flow(u, v, title="Flow Field"):
     plt.show()
 
 def visualize_external_forces(external_force, title="External Forces"):
-    plt.figure(figsize=(8, 8))
-    plt.quiver(external_force[:, :, 0], external_force[:, :, 1], scale=20, scale_units='xy', color='red')
+    plt.figure(figsize=(8, 4))
+
+    # Calculate the magnitude of the external forces
+    force_magnitude = np.sqrt(external_force[:, :, 0]**2 + external_force[:, :, 1]**2)
+
+    # Colored plot for force magnitude
+    plt.imshow(force_magnitude, cmap='viridis', extent=[0, Lx, 0, Ly], origin='lower', aspect='auto')
+    plt.colorbar(label='Force Magnitude')
     plt.title(title)
     plt.xlabel('X-axis')
     plt.ylabel('Y-axis')
